@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone Code')
+        {
+            steps
+            {
+                git branch: 'main', URL: 'https://github.com/Punee48/Devops-Jenkins-Projects.git'
+            }
+        }
+        stage('NPM Install')
+        {
+            steps
+            {
+                sh 'npm install'
+            }
+        }
+        stage('Deploy to EC2')
+        {
+            steps
+            {
+                sh '''
+                ssh -o StrictHostKeyChecking=no -i /home/ubuntu/punee-aws-key2.pem ubuntu@3.89.25.102 "mkdir -p ~/webapp"
+                scp -o StrictHostKeyChecking=no -i /home/ubuntu/punee-aws-key2.pem -r * ubuntu@3.89.25.102:~/webapp
+                ssh -o StrictHostKeyChecking=no -i /home/ubuntu/punee-aws-key2.pem ubuntu@3.89.25.102 "cd ~/webapp && nohup npm start > output.log 2>&1 &"
+                '''
+            }
+        }
+    }
+}
